@@ -7,6 +7,7 @@ import {
   SocketOn,
   BaseMessages,
 } from "./constants.js";
+import { User } from "./models/User.js";
 
 export class GameSocket {
   constructor(server) {
@@ -237,7 +238,7 @@ export class GameSocket {
       }
     });
 
-    socket.on(SocketOn.EndGame, (tableId, playerId, action) => {
+    socket.on(SocketOn.EndGame, async (tableId, playerId, action) => {
       try {
         const table = this.tables[tableId];
         if (!table) {
@@ -252,6 +253,20 @@ export class GameSocket {
         switch (action) {
           case EndGameActions.NewBet:
             table.removeFakePlayers(player);
+            break;
+          case EndGameActions.CashOut:
+            const balance = player._balance;
+            const name = player._name;
+
+            this.io
+              .to(playerId)
+              .emit(SocketEmit.CashOut, { username: name, balance: balance });
+
+            // Disconnect the player
+            const playerSocket = this.io.sockets.sockets.get(playerId);
+            if (playerSocket) {
+              playerSocket.disconnect(true);
+            }
             break;
         }
         table.roundIsStarted = false;
@@ -279,8 +294,21 @@ export class GameSocket {
         }
 
         if (!player || !table) {
-          throw new Error("Problem on disconnection");
+          throw new Error("Player or table not found on disconnection");
         }
+
+        const balance = player._balance;
+        const name = player._name;
+
+        console.info(`Updating balance for user ${name} to ${balance}`);
+
+        User.findOneAndUpdate({ username: name }, { balance }, { new: true })
+          .then((user) => {
+            console.log(`Balance updated for user ${name} to ${user.balance}`);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
 
         table.playerRemove(player);
 

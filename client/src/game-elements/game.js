@@ -11,6 +11,7 @@ import { Dealer } from "./dealer";
 import { Table } from "./table";
 import { Card } from "./card";
 import equal from "fast-deep-equal";
+import axios from "axios";
 
 export class Game {
   constructor() {

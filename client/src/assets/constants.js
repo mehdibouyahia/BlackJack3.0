@@ -14,6 +14,7 @@ export const betValues = [
   { value: 20 },
   { value: 50 },
   { value: 100 },
+  { value: 200 },
   { value: 500 },
   { value: 1000 },
 ];
@@ -71,6 +72,7 @@ export const ActionType = {
 
 export const EndGameActions = {
   NewBet: "NewBet",
+  CashOut: "CashOut",
 };
 
 export const SocketOn = {
@@ -83,6 +85,7 @@ export const SocketOn = {
   DealerMadeAction: "dealerMadeAction",
   WinnersCounted: "winnersCounted",
   GameEnded: "gameEnded",
+  CashOut: "cashOut",
   Error: "error",
   Message: "message",
   DealerWillHit: "dealerWillHit",

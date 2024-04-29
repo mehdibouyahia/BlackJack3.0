@@ -29,6 +29,7 @@ export const PlayerType = {
 
 export const EndGameActions = {
   NewBet: "NewBet",
+  CashOut: "CashOut",
 };
 
 export const ActionType = {
@@ -48,6 +49,7 @@ export const SocketEmit = {
   DealerWillHit: "dealerWillHit",
   WinnersCounted: "winnersCounted",
   GameEnded: "gameEnded",
+  CashOut: "cashOut",
   Error: "error",
   Message: "message",
 };

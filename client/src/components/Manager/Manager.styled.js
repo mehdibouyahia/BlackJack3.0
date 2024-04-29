@@ -26,6 +26,16 @@ export const Form = styled.form`
   box-sizing: border-box;
   border-radius: 10px;
 `;
+export const StyledDiv = styled.div`
+  width: 400px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 55, 0, 0.9);
+  box-sizing: border-box;
+  border-radius: 10px;
+`;
+
 export const Input = styled.input`
   font-size: 1.9vmin;
   padding: 5px;

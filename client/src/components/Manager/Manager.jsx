@@ -4,6 +4,9 @@ import { EndGame } from "./EndGame";
 import { Overflow } from "./Manager.styled";
 import { PlayerInfos } from "./PlayerInfos";
 import { game } from "../../game-elements/game";
+import { useNavigate } from "react-router-dom";
+import { Socket } from "../../assets/constants";
+import axios from "axios";
 
 const COMPONENTS = {
   [GamePhases.CreateOrJoin]: PlayerInfos,
@@ -13,6 +16,22 @@ const COMPONENTS = {
 const Manager = () => {
   const [modalType, setModalType] = useState(game.modal.type);
   const [modalHide, setModalHide] = useState(game.modal.hide);
+
+  const navigate = useNavigate();
+  axios.defaults.withCredentials = true;
+
+  useEffect(() => {
+    if (!Socket.connected) {
+      Socket.connect();
+    }
+    axios.get("http://localhost:5000/auth/verify").then((res) => {
+      if (res.data.status) {
+      } else {
+        navigate("/");
+      }
+      console.log(res);
+    });
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {

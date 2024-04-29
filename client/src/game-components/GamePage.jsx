@@ -2,20 +2,22 @@ import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
-import {
-  BalanceStyled,
-  OptionsPanel,
-  GameWrapper,
-  Wrapper,
-} from "./GamePage.styled";
+import { BalanceStyled, OptionsPanel, GameWrapper } from "./GamePage.styled";
 import { StyledBtn, toastSettings } from "../components/App/App.styled";
 import { GameActions } from "./GameActions";
 import { DealerSpotComponent } from "./PlayerSpot/DealerSpot";
 import { PlayerSpotComponent } from "./PlayerSpot/PlayerSpot";
-import { GamePhases, SocketEmit } from "../assets/constants";
+import {
+  GamePhases,
+  SocketEmit,
+  EndGameActions,
+  Socket,
+  SocketOn,
+} from "../assets/constants";
 import { SpotsZone } from "./PlayerSpot/Spot.styled";
 import { BetPanel } from "./BetPanel/BetPanel";
 import { game } from "../game-elements/game";
+import { cashOut } from "../game-elements/utils";
 
 const GamePage = () => {
   const navigate = useNavigate();
@@ -58,6 +60,14 @@ const GamePage = () => {
     }
   }, [roundIsEnded]);
 
+  useEffect(() => {
+    Socket.on(SocketOn.CashOut, (data) => cashOut(data, navigate));
+
+    return () => {
+      Socket.off(SocketOn.CashOut, cashOut);
+    };
+  }, []);
+
   const handlePlayBtn = () => {
     game.emit[SocketEmit.Deal]();
   };
@@ -71,6 +81,12 @@ const GamePage = () => {
       .catch(() => {
         toast.error("Failed to copy!", toastSettings);
       });
+  };
+
+  const handleCashOut = (action) => (e) => {
+    e.stopPropagation();
+    game.emit[SocketEmit.EndGame](action);
+    game.modalUpdate(true);
   };
 
   const spotsZone = (
@@ -100,9 +116,18 @@ const GamePage = () => {
     <StyledBtn onClick={handleCopyClick}>Copy Table ID</StyledBtn>
   );
 
+  const CashOutBtn = !roundIsStarted && (
+    <StyledBtn onClick={handleCashOut(EndGameActions.CashOut)}>
+      Cash out
+    </StyledBtn>
+  );
+
   return (
-    <Wrapper>
-      <OptionsPanel>{copyTableIdBtn}</OptionsPanel>
+    <>
+      <OptionsPanel>
+        {CashOutBtn}
+        {copyTableIdBtn}
+      </OptionsPanel>
       <BalanceStyled>
         <div>{balance}</div>
       </BalanceStyled>
@@ -117,7 +142,7 @@ const GamePage = () => {
         {playButtonOrGameStatus}
         {gameActionsComponent}
       </div>
-    </Wrapper>
+    </>
   );
 };
 
